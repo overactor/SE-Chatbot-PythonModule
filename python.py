@@ -2,6 +2,8 @@ from Module import Command
 import requests
 import json
 import time
+from threading import Thread
+import re
 
 sphere_url = "http://api.compilers.sphere-engine.com/api/3/"
 token = "b14f4e91ae714f83ba944de1b117feee"
@@ -31,18 +33,45 @@ def parse_python_command(cmd):
     else:
         return False
 
+def get_python_result(id, msg, room):
+    while True:
+        output = requests.get(sphere_url + 'submissions/' + id, params={'access_token':token, 'withOutput':1, 'withStderr':1, 'withCmpInfo':1})
+        if output.json()['status'] == 0:
+            break
+        time.sleep(0.2)
+    result = ''
+    if output.json()['result'] == 15:
+        reply = 'result:'
+        result = output.json()['output']
+    elif output.json()['result'] == 11:
+        reply = 'compiler error:'
+        result = output.json()['cmpinfo']
+    elif output.json()['result'] == 12:
+        reply = 'runtime error:'
+        result = output.json()['stderr']
+    elif output.json()['result'] == 13:
+        reply = "I'm afraid your code ran for too long."
+    elif output.json()['result'] == 17:
+        reply = "Your code took up too much memory"
+    elif output.json()['result'] == 19:
+        reply = "Do you really want to hurt me?"
+    else:
+        reply = "oops, something went wrong, try submitting your code again"
+    msg.reply(reply)
+    if result:
+        result = re.compile('^', re.M).sub('    ', result)
+        room.send_message(result)
+
+
 def exec_python(cmd, bot, args, msg, event):
     global sphere_url
     global token
     global python_id
     data = {'language':int(python_id), 'sourceCode':args[0]}
     response = requests.post(sphere_url + 'submissions', data, params={'access_token':token})
-    while True:
-        output = requests.get(sphere_url + 'submissions/' + str(response.json()['id']), params={'access_token':token, 'withOutput':1})
-        if output.json()['status']==0:
-            break
-        time.sleep(0.2)
-    return output.json()['output']
+    python_thread = Thread(target=get_python_result, args=(str(response.json()['id']), msg, bot.room))
+    python_thread.start()
+    return "I'm working on it."
     
 
 
