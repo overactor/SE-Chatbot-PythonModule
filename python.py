@@ -47,5 +47,5 @@ def exec_python(cmd, bot, args, msg, event):
 
 
 commands = [  # A list of all Commands in this Module.
-    Command( 'python', exec_python, 'Execute python code and shows you the output.\nSyntax:\n$PREFIXpython <pythoncode>', False, False, False, parse_python_command )
+    Command( 'python', exec_python, 'Execute python code and shows you the output.\nSyntax:\n$PREFIXpython <pythoncode>\nSupports multiline programs.', False, False, False, parse_python_command )
 ]
