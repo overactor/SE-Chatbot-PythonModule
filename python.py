@@ -9,6 +9,7 @@ import os
 
 sphere_url = "http://api.compilers.sphere-engine.com/api/3/"
 python_id = 4
+save_subdir = "python"
 
 
 def on_bot_load(bot): # This will get called when the bot loads (after your module has been loaded in), use to perform additional setup for this module.
@@ -21,7 +22,8 @@ def on_bot_load(bot): # This will get called when the bot loads (after your modu
         if languages[language].startswith("Python (python 2"):
             python_id = language
             return
-    print "WARNING: failed to find python, perhaps you didn't corectly set your Sphere Engine API key in /python/SphereEngineKey.txt?"
+    print "token: " + get_token()
+    print "WARNING: failed to find python, perhaps you didn't correctly set your Sphere Engine API key in /botdata/python/SphereEngineKey.txt?"
 
 # def on_bot_stop(bot): # This will get called when the bot is stopping.
 #     pass
@@ -30,10 +32,16 @@ def on_bot_load(bot): # This will get called when the bot loads (after your modu
 #     pass
 
 def get_token():
-    if not os.path.exists("SphereEngineKey.txt") or os.stat("SphereEngineKey.txt").st_size == 0:
+    _file = "botdata/python/SphereEngineKey.txt"
+    if not os.path.exists(_file):
+        with open(_file, "w") as f:
+            f.write("<your API key>")
+            f.close()
         return ""
-    with open("SphereEngineKey.txt", "r") as f:
-        return pickle.load(f)
+    with open(_file, "r") as f:
+        token =  f.read()
+        f.close()
+        return token
 
 def parse_python_command(cmd):
     if cmd.startswith("python "):
@@ -74,11 +82,14 @@ def get_python_result(id, msg, room):
 def exec_python(cmd, bot, args, msg, event):
     global sphere_url
     global python_id
-    data = {'language':int(python_id), 'sourceCode':args[0]}
-    response = requests.post(sphere_url + 'submissions', data, params={'access_token':get_token()})
-    python_thread = Thread(target=get_python_result, args=(str(response.json()['id']), msg, bot.room))
-    python_thread.start()
-    return "I'm working on it."
+    try:
+        data = {'language':int(python_id), 'sourceCode':args[0]}
+        response = requests.post(sphere_url + 'submissions', data, params={'access_token':get_token()})
+        python_thread = Thread(target=get_python_result, args=(str(response.json()['id']), msg, bot.room))
+        python_thread.start()
+        return "I'm working on it."
+    except KeyError:
+        return "Oops, something went wrong, try submitting your code again, or contact $OWNER_NAME if the problem persists."
     
 
 
