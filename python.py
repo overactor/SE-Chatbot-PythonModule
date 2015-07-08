@@ -4,29 +4,36 @@ import json
 import time
 from threading import Thread
 import re
+import pickle
+import os
 
 sphere_url = "http://api.compilers.sphere-engine.com/api/3/"
-token = "b14f4e91ae714f83ba944de1b117feee"
 python_id = 4
 
 
 def on_bot_load(bot): # This will get called when the bot loads (after your module has been loaded in), use to perform additional setup for this module.
     global sphere_url
-    global token
     global python_id
-    response = requests.get(sphere_url + 'languages', params={'access_token':token})
+    response = requests.get(sphere_url + 'languages', params={'access_token':get_token()})
     time.sleep(0.1)
     languages = response.json()
     for language in languages:
         if languages[language].startswith("Python (python 2"):
             python_id = language
             return
+    print "WARNING: failed to find python, perhaps you didn't corectly set your Sphere Engine API key in /python/SphereEngineKey.txt?"
 
 # def on_bot_stop(bot): # This will get called when the bot is stopping.
 #     pass
 
 # def on_event(event, client, bot): # This will get called on any event (messages, new user entering the room, etc.)
 #     pass
+
+def get_token():
+    if not os.path.exists("SphereEngineKey.txt") or os.stat("SphereEngineKey.txt").st_size == 0:
+        return ""
+    with open("SphereEngineKey.txt", "r") as f:
+        return pickle.load(f)
 
 def parse_python_command(cmd):
     if cmd.startswith("python "):
@@ -36,7 +43,7 @@ def parse_python_command(cmd):
 
 def get_python_result(id, msg, room):
     while True:
-        output = requests.get(sphere_url + 'submissions/' + id, params={'access_token':token, 'withOutput':1, 'withStderr':1, 'withCmpInfo':1})
+        output = requests.get(sphere_url + 'submissions/' + id, params={'access_token':get_token(), 'withOutput':1, 'withStderr':1, 'withCmpInfo':1})
         if output.json()['status'] == 0:
             break
         time.sleep(0.2)
@@ -57,7 +64,7 @@ def get_python_result(id, msg, room):
     elif output.json()['result'] == 19:
         reply = "Do you really want to hurt me?"
     else:
-        reply = "oops, something went wrong, try submitting your code again"
+        reply = "Oops, something went wrong, try submitting your code again, or contact $OWNER_NAME if the problem persists."
     msg.reply(reply)
     if result:
         result = re.compile('^', re.M).sub('    ', result)
@@ -66,10 +73,9 @@ def get_python_result(id, msg, room):
 
 def exec_python(cmd, bot, args, msg, event):
     global sphere_url
-    global token
     global python_id
     data = {'language':int(python_id), 'sourceCode':args[0]}
-    response = requests.post(sphere_url + 'submissions', data, params={'access_token':token})
+    response = requests.post(sphere_url + 'submissions', data, params={'access_token':get_token()})
     python_thread = Thread(target=get_python_result, args=(str(response.json()['id']), msg, bot.room))
     python_thread.start()
     return "I'm working on it."
