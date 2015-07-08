@@ -43,7 +43,7 @@ def parse_python_command(cmd):
 
 def get_python_result(id, msg, room):
     while True:
-        output = requests.get(sphere_url + 'submissions/' + id, params={'access_token':get_token(), 'withOutput':1, 'withStderr':1, 'withCmpInfo':1})
+        output = requests.get(sphere_url + 'submissions/' + id, params={'access_token':get_token(), 'withOutput':1, 'withStderr':1, 'withCmpinfo':1})
         if output.json()['status'] == 0:
             break
         time.sleep(0.2)
