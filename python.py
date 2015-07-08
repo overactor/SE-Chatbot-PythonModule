@@ -9,6 +9,7 @@ sphere_url = "http://api.compilers.sphere-engine.com/api/3/"
 token = "b14f4e91ae714f83ba944de1b117feee"
 python_id = 4
 
+
 def on_bot_load(bot): # This will get called when the bot loads (after your module has been loaded in), use to perform additional setup for this module.
     global sphere_url
     global token
@@ -78,3 +79,5 @@ def exec_python(cmd, bot, args, msg, event):
 commands = [  # A list of all Commands in this Module.
     Command( 'python', exec_python, 'Execute python code and shows you the output.\nSyntax:\n$PREFIXpython <pythoncode>\nSupports multiline programs.', False, False, False, parse_python_command )
 ]
+
+module_name = "python"
