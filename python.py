@@ -1,11 +1,9 @@
 from Module import Command
 import requests
-import json
 import time
 from threading import Thread
 import re
-import pickle
-import os
+import SaveIO
 
 sphere_url = "http://api.compilers.sphere-engine.com/api/3/"
 python_id = 4
@@ -32,16 +30,7 @@ def on_bot_load(bot): # This will get called when the bot loads (after your modu
 #     pass
 
 def get_token():
-    _file = "botdata/python/SphereEngineKey.txt"
-    if not os.path.exists(_file):
-        with open(_file, "w") as f:
-            f.write("<your API key>")
-            f.close()
-        return ""
-    with open(_file, "r") as f:
-        token =  f.read()
-        f.close()
-        return token
+    return SaveIO.load(save_subdir, "SphereEngineKey", "txt")
 
 def parse_python_command(cmd):
     if cmd.startswith("python "):
