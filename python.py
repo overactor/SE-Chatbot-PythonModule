@@ -17,11 +17,11 @@ def on_bot_load(bot): # This will get called when the bot loads (after your modu
     time.sleep(0.1)
     languages = response.json()
     for language in languages:
-        if languages[language].startswith("Python (python 2"):
+        if languages[language].startswith("Python 3"):
             python_id = language
             return
-    print "token: " + get_token()
-    print "WARNING: failed to find python, perhaps you didn't correctly set your Sphere Engine API key in /botdata/python/SphereEngineKey.txt?"
+    print("token: " + get_token())
+    print("WARNING: failed to find python, perhaps you didn't correctly set your Sphere Engine API key in /botdata/python/SphereEngineKey.txt?")
 
 # def on_bot_stop(bot): # This will get called when the bot is stopping.
 #     pass
@@ -83,7 +83,7 @@ def exec_python(cmd, bot, args, msg, event):
 
 
 commands = [  # A list of all Commands in this Module.
-    Command( 'python', exec_python, 'Execute python code and shows you the output.\nSyntax:\n$PREFIXpython <pythoncode>\nSupports multiline programs.', False, False, False, parse_python_command )
+    Command( 'python', exec_python, 'Execute python 3 code and shows you the output.\nSyntax:\n$PREFIXpython <pythoncode>\nSupports multiline programs.', False, False, False, parse_python_command )
 ]
 
 module_name = "python"
