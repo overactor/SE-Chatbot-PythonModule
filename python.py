@@ -20,8 +20,8 @@ def on_bot_load(bot): # This will get called when the bot loads (after your modu
         if languages[language].startswith("Python (python 3"):
             python_id = language
             return
-    print "token: " + get_token()
-    print "WARNING: failed to find python, perhaps you didn't correctly set your Sphere Engine API key in /botdata/python/SphereEngineKey.txt?"
+    print("token: " + get_token())
+    print("WARNING: failed to find python, perhaps you didn't correctly set your Sphere Engine API key in /botdata/python/SphereEngineKey.txt?")
 
 # def on_bot_stop(bot): # This will get called when the bot is stopping.
 #     pass
